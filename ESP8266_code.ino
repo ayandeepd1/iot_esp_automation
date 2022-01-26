@@ -1,13 +1,14 @@
+/*
+ * this Code has been developed by Ayandeep Dutta
+ */
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-
 
 const char ssid[] = "One";
 const char password[] = "12345678";
 
 String recog_server;
-const char status_server[] = "http://fflounge.000webhostapp.com/iot/handler.php?action=get";
 
 volatile  int indx=0;
 
@@ -15,7 +16,7 @@ short post_code, get_code;
 
 volatile bool speech=false;
 
-uint8_t audio_buff[24100];
+uint8_t audio_buff[25100];
 
 unsigned long time1=4000;
 
@@ -27,7 +28,7 @@ HTTPClient http;
 
 void ICACHE_RAM_ATTR write_buff(){
   timer1_write(625);
-  if(indx<24000){
+  if(indx<25000){
     uint8_t mic_val=system_adc_read()/4;
     
     audio_buff[indx]=mic_val;
@@ -38,10 +39,10 @@ void ICACHE_RAM_ATTR write_buff(){
   }
 }
 
-void change_state(const char* resp, byte idx){
-  for(byte i=idx;i<idx+3;i++){
-    if (states[i]!=resp[i]-'0'){
-      states[i]=resp[i]-'0';
+void change_state(const char* resp){
+  for(byte i=0; i<3; i++){
+    if (states[i]!=resp[i+1]-'0'){
+      states[i]=resp[i+1]-'0';
       digitalWrite(pins[i], states[i]);
     }
   }
@@ -93,9 +94,9 @@ void setup() {
 
 void loop() { 
   if(WiFi.status() == WL_CONNECTED){
-   if (millis()-time1>=2700){
+   if (millis()-time1>=3000){
     
-    digitalWrite(2, 0);
+    digitalWrite(2, 1);
 
     if(speech){
      
@@ -108,18 +109,27 @@ void loop() {
       const char* resp=http.getString().c_str();
       
       if(post_code>0 && post_code<400){
-           
+        
         switch(resp[0]-'0'){
-          case 5: change_state(resp,1);
-                  Serial.println("hi there");
+          case 0: change_state(resp);
                   break;
                   
-          case 9: change_state(resp,1);
-                  Serial.println("error. (values kept same)");
+          case 5: change_state(resp);
+                  Serial.println("hi there");
                   break;
           
-          default:change_state(resp,0);
-                  Serial.println(resp);
+          case 7: change_state(resp);
+                  Serial.println("noise detected.(values kept same)");
+                  break;
+                  
+          case 9: change_state(resp);
+                  Serial.println("wrong command. (values kept same)");
+                  break;
+                  
+          case 8: Serial.println("server error. (values kept same)");
+                  break;  //request fail on server side
+          
+          default: break;
         }
       }
       else{
@@ -141,7 +151,7 @@ void loop() {
       
       if (get_code>0 && get_code<400){
         const char* resp= http.getString().c_str();
-        change_state(resp,0);       
+        change_state(resp);       
       }
       else{
         Serial.print("get_code: ");
@@ -151,7 +161,7 @@ void loop() {
       http.end();
     }
     speech=false;
-    digitalWrite(2, 1);
+    digitalWrite(2, 0);
     indx=0;
     post_code=-1;
     time1=millis();
