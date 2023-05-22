@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <style>
+			 body {
+        	background-color: #FDE0D9;   }
+        	#b1{
+        	    border-style: solid;
+        	    border-color: #b4d1b9;
+        	    border-width: 1px;
+        	    border-radius: 3px;
+        	    position: relative;
+        	}
+        	#pass{
+        	    display: none;
+        	    position: relative;
+        	    top: 2%;
+        	    padding=2px;
+        	    background-color: #FFF2CC;
+        	}
+        	#f{
+        	    background-color: #FFF2CC;
+        	    padding: 20px 25px;
+        	    position: relative;
+        	    top: 15%;
+        	    left:17%;
+        	    text-align: center;
+        	    font-size: 26px;
+        	    color: #5e5e53;
+        	    width: 60%;
+        	    border-style: solid;
+        	    border-width: 4px;
+        	    border-color: #e6dfcc;
+        	    border-radius: 5px;
+        	}
+        	.b2{
+        	    background-color: #CAEFD1;
+        	    margin: auto;
+        	    border-style: solid;
+        	    border-color: #b4d1b9;
+        	    border-width: 3px;
+        	    border-radius: 6px;
+        	    font-size: 26px;
+        	    color: #5e5e53;
+        	    padding:12px;
+        	    
+        	}
+        	.b2:hover{/*cursor: pointer;*/}
+        	.b2:active{
+        	    transition-duration: 0.2s;
+        	    background-color: #b4d1b9;
+        	    color: #a1a18d;
+        	}
+        	#l1{
+        	    position: relative;
+        	    top: 20%;
+        	    left: 27%;
+        	}
+        	#l2{
+        	    position: relative;
+        	    top: 20%;
+        	    left: 35%;
+        	}
+        	#f1{
+        	    position: relative;
+        	    top: 20%;
+        	    left: 42%;
+        	}
+        </style>
+        <title>HOME IOT</title>
+        <link rel="icon" href="1.jpg">
+    </head>
+    
+    <body>
+        <img id="b1" src='2.jpg' onclick='show_pass()' height= "18" width="18"><br>
+        <input type="password" id="pass" >
+        <div id="f">
+        <H1>Hi<br></H1>
+        <H2>press button to toggle</H2>
+        </div>
+        <br><br><br>
+        <button class="b2" id="l1" onclick="toggle('l1')">LIGHT A</button>
+        <button class="b2" id="l2" onclick="toggle('l2')">LIGHT B</button>
+        <button class="b2" id="f1" onclick="toggle('f1')">FAN</button>
+        <p id="p"></p>
+        <script>
+            var v=document.getElementById('pass');
+            function show_pass(){
+                if (v.style.display=='none'){v.style.display='block'}
+                else{v.style.display='none'}
+            }
+        
+            function toggle(ch_type){
+                v.style.display='none';
+                var xhr = new XMLHttpRequest();
+                var url = "handler.php?action="+ch_type;
+                xhr.open("POST", url, true);
+                var data=JSON.stringify({'password': document.getElementById('pass').value});
+                xhr.setRequestHeader("Content-Type", "application/json");
+                //xhr.onreadystatechange = function () {
+                //if (xhr.readyState === 4 && xhr.status === 200) {
+                //document.getElementById('p').innerHTML=xhr.responseText;}}
+                xhr.send(data);
+            }
+        </script>
+    </body>
+</html>
